@@ -12,39 +12,35 @@ import {
 } from 'react-native';
 import colors from '../constants/colors';
 
-const CATEGORIES = ['Trabajo', 'Personal', 'Estudio', 'Hogar'];
+const CATEGORIES = ['Trabajo', 'Personal', 'Estudio', 'Otro'];
 
-export default function AddTaskScreen() {
+export default function AddTaskScreen({ onAddTask }) {
   // 1. Estados locales para el formulario
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Trabajo'); // Categoría por defecto
+  const [category, setCategory] = useState('Trabajo');
 
   // Estados para manejo de foco y errores de validación
   const [focusedField, setFocusedField] = useState(null);
   const [errors, setErrors] = useState({});
 
-  // Función de validación de campos
+  // 2. Función de validación
   const validateForm = () => {
-    let currentErrors = {};
+    const currentErrors = {};
 
     if (!title.trim()) {
-      currentErrors.title = 'El título es obligatorio.';
-    } else if (title.trim().length < 5) {
-      currentErrors.title = 'El título debe tener al menos 5 caracteres.';
+      currentErrors.title = 'El título de la tarea es obligatorio';
     }
 
     if (!description.trim()) {
-      currentErrors.description = 'La descripción es obligatoria.';
-    } else if (description.trim().length < 10) {
-      currentErrors.description = 'La descripción debe tener al menos 10 caracteres.';
+      currentErrors.description = 'La descripción es obligatoria';
     }
 
     setErrors(currentErrors);
     return Object.keys(currentErrors).length === 0;
   };
 
-  // 4. Simulación de API al guardar la tarea
+  // 3. Manejador al presionar el botón Guardar
   const handleAddTask = () => {
     if (validateForm()) {
       const newTask = {
@@ -54,13 +50,13 @@ export default function AddTaskScreen() {
         createdAt: new Date(),
       };
 
-      // Muestra por consola el objeto final de la tarea
-      console.log('Objeto Tarea Creado:', newTask);
+      if (onAddTask) {
+        onAddTask(newTask);
+      }
 
-      // Alerta de éxito
-      Alert.alert('Éxito', 'Tarea capturada localmente');
+      Alert.alert('Éxito', 'Tarea creada correctamente');
 
-      // Limpieza de estado / reset del formulario
+      // Reset del formulario
       setTitle('');
       setDescription('');
       setCategory('Trabajo');
@@ -71,12 +67,12 @@ export default function AddTaskScreen() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.screenTitle}>Nueva Tarea</Text>
+        <Text style={styles.screenTitle}>Agregar Nueva Tarea</Text>
 
-        {/* CAMPO: TÍTULO */}
+        {/* CAMPO TÍTULO */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Título</Text>
           <TextInput
@@ -85,21 +81,16 @@ export default function AddTaskScreen() {
               focusedField === 'title' && styles.inputFocused,
               errors.title && styles.inputError,
             ]}
-            placeholder="Escribe el título de la tarea..."
+            placeholder="Ej: Comprar insumos"
             value={title}
-            onChangeText={(text) => {
-              setTitle(text);
-              if (errors.title) setErrors((prev) => ({ ...prev, title: null }));
-            }}
+            onChangeText={setTitle}
             onFocus={() => setFocusedField('title')}
             onBlur={() => setFocusedField(null)}
-            autoCapitalize="sentences"
-            returnKeyType="next"
           />
           {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
         </View>
 
-        {/* CAMPO: DESCRIPCIÓN */}
+        {/* CAMPO DESCRIPCIÓN */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Descripción</Text>
           <TextInput
@@ -109,24 +100,20 @@ export default function AddTaskScreen() {
               focusedField === 'description' && styles.inputFocused,
               errors.description && styles.inputError,
             ]}
-            placeholder="Describe los detalles de la tarea..."
+            placeholder="Detalles sobre la tarea..."
             value={description}
-            onChangeText={(text) => {
-              setDescription(text);
-              if (errors.description) setErrors((prev) => ({ ...prev, description: null }));
-            }}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={3}
             onFocus={() => setFocusedField('description')}
             onBlur={() => setFocusedField(null)}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
           />
           {errors.description && (
             <Text style={styles.errorText}>{errors.description}</Text>
           )}
         </View>
 
-        {/* CAMPO: CATEGORÍA (Set de Botones de Selección) */}
+        {/* SELECTOR DE CATEGORÍA */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Categoría</Text>
           <View style={styles.categoryContainer}>
@@ -134,8 +121,8 @@ export default function AddTaskScreen() {
               <TouchableOpacity
                 key={cat}
                 style={[
-                  styles.categoryBadge,
-                  category === cat && styles.categoryBadgeSelected,
+                  styles.categoryChip,
+                  category === cat && styles.categoryChipSelected,
                 ]}
                 onPress={() => setCategory(cat)}
               >
@@ -169,11 +156,9 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: colors?.background || '#f5f5f5',
-    flexGrow: 1,
-    justifyContent: 'center',
   },
   screenTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     color: colors?.textPrimary || '#333333',
     marginBottom: 20,
@@ -190,24 +175,25 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#ffffff',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#cccccc',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
   },
-  textArea: {
-    height: 90,
-  },
   inputFocused: {
     borderColor: colors?.primary || '#0066cc',
   },
   inputError: {
-    borderColor: '#d32f2f',
+    borderColor: '#d9534f',
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
   },
   errorText: {
-    color: '#d32f2f',
+    color: '#d9534f',
     fontSize: 12,
     marginTop: 4,
   },
@@ -216,21 +202,18 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
   },
-  categoryBadge: {
+  categoryChip: {
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#cccccc',
-    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    backgroundColor: '#e0e0e0',
   },
-  categoryBadgeSelected: {
+  categoryChipSelected: {
     backgroundColor: colors?.primary || '#0066cc',
-    borderColor: colors?.primary || '#0066cc',
   },
   categoryText: {
     fontSize: 13,
-    color: colors?.textPrimary || '#333333',
+    color: '#333333',
   },
   categoryTextSelected: {
     color: '#ffffff',
