@@ -1,31 +1,63 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 import colors from '../constants/colors';
+import { fetchTasks } from '../store/tasksSlice';
 
 export default function HomeScreen({ navigation }) {
-  // Obtenemos las tareas desde el estado global de Redux
-  const tasks = useSelector((state) => state.tasks.items);
+  const dispatch = useDispatch();
+
+  // 1. Obtenemos las tareas, el estado de carga y el usuario autenticado desde Redux
+  const { items: tasks, loading } = useSelector((state) => state.tasks);
+  const user = useSelector((state) => state.auth.user);
+
+  // 2. Al montar la pantalla, descargamos las tareas del usuario desde Firestore
+  useEffect(() => {
+    if (user?.uid) {
+      dispatch(fetchTasks(user.uid));
+    }
+  }, [dispatch, user]);
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('TaskDetail', { task: item })}
-          >
-            <Text style={styles.category}>{item.category}</Text>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.description} numberOfLines={1}>
-              {item.description}
-            </Text>
-          </TouchableOpacity>
-        )}
-      />
+      {/* Muestra un spinner de carga mientras se descargan las tareas */}
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors?.primary || '#0066cc'} />
+        </View>
+      ) : tasks.length === 0 ? (
+        /* Muestra un mensaje amigable si la lista está vacía */
+        <View style={styles.center}>
+          <Text style={styles.emptyText}>No tienes tareas pendientes.</Text>
+        </View>
+      ) : (
+        /* Renderiza la lista con el diseño exacto que tenías */
+        <FlatList
+          data={tasks}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => navigation.navigate('TaskDetail', { task: item })}
+            >
+              <Text style={styles.category}>{item.category}</Text>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.description} numberOfLines={1}>
+                {item.description}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
 
+      {/* Botón flotante para agregar tarea */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('TaskForm')}
@@ -37,7 +69,9 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fsf5fs' },
+  container: { flex: 1, padding: 16, backgroundColor: '#f5f5f5' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyText: { fontSize: 16, color: '#888' },
   card: {
     backgroundColor: '#fff',
     padding: 16,
