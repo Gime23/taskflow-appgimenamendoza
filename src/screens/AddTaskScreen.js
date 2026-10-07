@@ -14,7 +14,7 @@ import colors from '../constants/colors';
 
 const CATEGORIES = ['Trabajo', 'Personal', 'Estudio', 'Otro'];
 
-export default function AddTaskScreen({ onAddTask }) {
+export default function AddTaskScreen({ navigation, onAddTask })  {
   // 1. Estados locales para el formulario
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -40,14 +40,14 @@ export default function AddTaskScreen({ onAddTask }) {
     return Object.keys(currentErrors).length === 0;
   };
 
-  // 3. Manejador al presionar el botón Guardar
-  const handleAddTask = () => {
+const handleAddTask = () => {
     if (validateForm()) {
       const newTask = {
+        id: Date.now().toString(),
         title: title.trim(),
         description: description.trim(),
         category,
-        createdAt: new Date(),
+        createdAt: new Date().toLocaleDateString(),
       };
 
       if (onAddTask) {
@@ -61,6 +61,11 @@ export default function AddTaskScreen({ onAddTask }) {
       setDescription('');
       setCategory('Trabajo');
       setErrors({});
+
+      // Redirigir a la lista de tareas
+      if (navigation) {
+        navigation.navigate('TaskList');
+      }
     }
   };
 
