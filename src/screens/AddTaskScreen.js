@@ -10,12 +10,16 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { addTask } from '../store/tasksSlice';
 import colors from '../constants/colors';
 
 const CATEGORIES = ['Trabajo', 'Personal', 'Estudio', 'Otro'];
 
-export default function AddTaskScreen({ navigation, onAddTask })  {
-  // 1. Estados locales para el formulario
+export default function AddTaskScreen({ navigation }) {
+  const dispatch = useDispatch();
+
+  // 1. Estados locales para los inputs del formulario
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Trabajo');
@@ -40,19 +44,16 @@ export default function AddTaskScreen({ navigation, onAddTask })  {
     return Object.keys(currentErrors).length === 0;
   };
 
-const handleAddTask = () => {
+  const handleAddTask = () => {
     if (validateForm()) {
-      const newTask = {
-        id: Date.now().toString(),
-        title: title.trim(),
-        description: description.trim(),
-        category,
-        createdAt: new Date().toLocaleDateString(),
-      };
-
-      if (onAddTask) {
-        onAddTask(newTask);
-      }
+      // Despachamos la acción de Redux en lugar de llamar a props locales
+      dispatch(
+        addTask({
+          title: title.trim(),
+          description: description.trim(),
+          category,
+        })
+      );
 
       Alert.alert('Éxito', 'Tarea creada correctamente');
 
@@ -62,9 +63,9 @@ const handleAddTask = () => {
       setCategory('Trabajo');
       setErrors({});
 
-      // Redirigir a la lista de tareas
+      // Volver a la pantalla anterior
       if (navigation) {
-        navigation.navigate('TaskList');
+        navigation.goBack();
       }
     }
   };

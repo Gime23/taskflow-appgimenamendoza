@@ -1,13 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { useSelector } from 'react-redux';
 import colors from '../constants/colors';
 
-const INITIAL_TASKS = [
-  { id: '1', title: 'Ir a clases', description: 'Hora 20:30 biología', category: 'Estudio', createdAt: '06/10/2026' },
-  { id: '2', title: 'Comprar insumos', description: 'Leche, pan, frutas', category: 'Personal', createdAt: '06/10/2026' },
-];
+export default function HomeScreen({ navigation }) {
+  // Obtenemos las tareas desde el estado global de Redux
+  const tasks = useSelector((state) => state.tasks.items);
 
-export default function HomeScreen({ navigation, tasks = INITIAL_TASKS }) {
   return (
     <View style={styles.container}>
       <FlatList
@@ -20,10 +19,13 @@ export default function HomeScreen({ navigation, tasks = INITIAL_TASKS }) {
           >
             <Text style={styles.category}>{item.category}</Text>
             <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.description} numberOfLines={1}>{item.description}</Text>
+            <Text style={styles.description} numberOfLines={1}>
+              {item.description}
+            </Text>
           </TouchableOpacity>
         )}
       />
+
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('TaskForm')}
@@ -35,9 +37,19 @@ export default function HomeScreen({ navigation, tasks = INITIAL_TASKS }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#f5f5f5' },
-  card: { backgroundColor: '#fff', padding: 16, borderRadius: 8, marginBottom: 12, elevation: 2 },
-  category: { fontSize: 12, color: colors?.primary || '#0066cc', fontWeight: 'bold' },
+  container: { flex: 1, padding: 16, backgroundColor: '#fsf5fs' },
+  card: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  category: {
+    fontSize: 12,
+    color: colors?.primary || '#0066cc',
+    fontWeight: 'bold',
+  },
   title: { fontSize: 18, fontWeight: 'bold', marginVertical: 4 },
   description: { fontSize: 14, color: '#666' },
   fab: {
