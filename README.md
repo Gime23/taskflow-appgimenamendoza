@@ -1,13 +1,14 @@
-# TaskFlow
+# TaskFlow - Pre-entrega
 
-Aplicación móvil de gestión de tareas construida con React Native y Expo.
+## Estructura del proyecto
+Se organizó la arquitectura del proyecto utilizando la siguiente estructura de carpetas dentro de `src`:
+- `src/components`: Componentes reutilizables como `ProfileCard.js`.
+- `src/screens`: Pantallas de la aplicación (`HomeScreen.js` y `ProfileScreen.js`).
+- `src/constants`: Definición de temas y paleta de colores (`colors.js`).
+- `src/assets`: Recursos gráficos del proyecto.
 
-## Checkpoint 1: Estructura Base
-En este checkpoint se inicializó el repositorio con Managed Workflow de Expo y se implementó la estructura de carpetas requerida (`/src`).
-
-## Instrucciones para ejecutar el proyecto
-
-1. Clonar el repositorio:
-   ```bash
-   git clone <URL_DE_TU_REPOSITORIO>
-   cd taskflow-app
+## Pantallas e Integración
+- **ProfileScreen**: Se logró visualizar correctamente la pantalla de perfil.
+- **ProfileCard**: Componente modular que recibe y renderiza los datos pasados por props (`name`, `role`, `image`) junto con los estilos de `StyleSheet`.
+- **App.js**: Configurado para renderizar la pantalla principal de perfil (`ProfileScreen`).
+-
