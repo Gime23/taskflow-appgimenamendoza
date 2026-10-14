@@ -39,3 +39,25 @@ Se organizó la arquitectura del proyecto dentro de la carpeta `src`:
 1. Clonar el repositorio e instalar dependencias:
    ```bash
    npm install
+
+---
+
+## 🚀 Instrucciones de Prueba (Guía para el Evaluador)
+
+Para verificar el correcto funcionamiento de la aplicación, sigue estos pasos:
+
+1. **Flujo de Registro / Autenticación:**
+   - Al abrir la app por primera vez, verás la pantalla de inicio de sesión (`Login`).
+   - Haz clic en el enlace de registro para crear una cuenta nueva con un correo y contraseña (la contraseña debe tener al menos 6 caracteres).
+   - Serás redirigido automáticamente a la pantalla principal (`Home`) gracias al listener `onAuthStateChanged`.
+   - Si cierras sesión y vuelves a abrir la app, la sesión se mantendrá activa (persistencia).
+
+2. **Gestión de Tareas (CRUD con Firestore y Redux):**
+   - Una vez en el Home, ve a la sección de **Agregar Tarea** (`+`).
+   - Completa el título, descripción y selecciona una categoría.
+   - Presiona "Guardar Tarea": esto enviará el documento a Cloud Firestore asociándolo automáticamente al `userId` del usuario autenticado.
+   - La lista de tareas se actualizará en tiempo real reflejando el nuevo elemento.
+
+3. **Manejo de Errores:**
+   - Si intentas iniciar sesión con credenciales incorrectas, la aplicación mostrará una alerta o mensaje descriptivo de error en pantalla sin romperse.
+   - Si te quedas sin conexión a internet, Firebase manejará la excepción y se notificará al usuario de manera controlada.   
